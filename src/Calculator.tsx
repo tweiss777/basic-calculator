@@ -118,7 +118,7 @@ export default function Calculator() {
   }
 
   function storeNumToScreen(num: string) {
-    setInput(prev => prev === '0' || prev === null || equalSignPressed? num : prev + num)
+    setInput(prev => prev === '0' || prev === null || equalSignPressed && input?.charAt(0) !== '.'? num : prev + num)
     
   }
 
