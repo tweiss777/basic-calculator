@@ -7,8 +7,8 @@ import "./styles.css";
 const operations: Operators = {
   "+": (n1, n2) => n1 + n2,
   "-": (n1, n2) => n1 - n2,
-  "*": (n1, n2) => n1 * n2,
-  "/": (n1, n2) => n1 / n2,
+  "✕" : (n1, n2) => n1 * n2,
+  "÷": (n1, n2) => n1 / n2,
   "%": (_n1, n2) => n2 / 100,
   "+/-": (_n1, n2) => n2 * -1,
 };
@@ -87,8 +87,8 @@ export default function Calculator() {
 
       case "+":
       case "-":
-      case "*":
-      case "/":
+      case "✕":
+      case "÷":
         if (input === null || prevSymbol === null) {
           if (prevSymbol === null) {
             if (input !== null) setTotal(parseFloat(input));
@@ -136,7 +136,7 @@ export default function Calculator() {
       } 
     }
     if(value !== '='){
-      setEqualSignPressed((value === '+/-' || value === '%' || value === '.'))
+      setEqualSignPressed((value === '+/-' && equalSignPressed || value === '%' || value === '.' && equalSignPressed))
     }
   }
 
