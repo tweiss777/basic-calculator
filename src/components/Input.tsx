@@ -1,3 +1,4 @@
+import '../styles.css'
 interface IProps {
   input: string;
   error: boolean;
