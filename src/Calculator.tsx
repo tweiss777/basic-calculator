@@ -57,7 +57,7 @@ export default function Calculator() {
           total,
           prevSymbol
         );
-        if(input === '0' && prevSymbol === '/'){
+        if(input === '0' && prevSymbol === '÷'){
           setHasError(true)
           return
         }
