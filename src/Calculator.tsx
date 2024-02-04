@@ -1,31 +1,32 @@
-import Buttons from "./components/Buttons";
-import Input from "./components/Input";
-import { Operators } from "./types/operations";
-import { useMemo, useState } from "react";
 import "./styles.css";
-
-const operations: Operators = {
-  "+": (n1, n2) => n1 + n2,
-  "-": (n1, n2) => n1 - n2,
-  "✕" : (n1, n2) => n1 * n2,
-  "÷": (n1, n2) => n1 / n2,
-  "%": (_n1, n2) => n2 / 100,
-  "+/-": (_n1, n2) => n2 * -1,
-};
+import { useState, useMemo } from "react";
+import Input from "./components/Input";
+import Buttons from "./components/Buttons";
+import { Operators } from "./types/operations";
 
 export default function Calculator() {
   const [input, setInput] = useState<string | null>(null);
+  const [total, setTotal] = useState<number>(0);
+  const [hasError, setHasError] = useState<boolean>(false);
   const [oldInput, setOldInput] = useState<string | null>(null);
   const [showOldInput, setShowOldInput] = useState<boolean>(false);
-  const [total, setTotal] = useState<number>(0);
   const [prevSymbol, setPrevSymbol] = useState<string | null>(null);
-  const [hasError, setHasError] = useState<boolean>(false)
-  const [equalSignPressed, setEqualSignPressed] = useState<boolean>(false) 
+  const [equalSignPressed, setEqualSignPressed] = useState<boolean>(false);
 
   const currentInput: string | null = useMemo<string | null>(
     () => (showOldInput ? oldInput : input),
     [input, showOldInput]
   );
+
+
+  const operations: Operators = {
+    "+": (n1, n2) => n1 + n2,
+    "-": (n1, n2) => n1 - n2,
+    "✕" : (n1, n2) => n1 * n2,
+    "÷": (n1, n2) => n1 / n2,
+    "%": (_n1, n2) => n2 / 100,
+    "+/-": (_n1, n2) => n2 * -1,
+  };
 
   function clear() {
     setInput(null);
@@ -33,9 +34,8 @@ export default function Calculator() {
     setShowOldInput(false);
     setTotal(0);
     setPrevSymbol(null);
-    setHasError(false)
+    setHasError(false);
   }
-
   function calculate(
     buffer: number,
     currentTotal: number,
@@ -48,6 +48,23 @@ export default function Calculator() {
     switch (symbol) {
       case "C":
         clear();
+        break;
+      case ".":
+        if (!input?.includes(".")) {
+          storeNumToScreen(symbol);
+        }
+        break;
+      case "%":
+      case "+/-":
+        if (input === null) {
+          return;
+        }
+        const changedValue: number = calculate(
+          parseFloat(input),
+          total,
+          symbol
+        );
+        setInput(changedValue.toString());
         break;
       case "=":
         setEqualSignPressed(true)
@@ -64,25 +81,6 @@ export default function Calculator() {
         setInput(finalTotal.toString());
         setPrevSymbol(null);
         if (showOldInput) setShowOldInput(false);
-        break;
-
-      case "%":
-      case "+/-":
-        if (input === null) {
-          return;
-        }
-        const changedValue: number = calculate(
-          parseFloat(input),
-          total,
-          symbol
-        );
-        setInput(changedValue.toString());
-        break;
-
-      case ".":
-        if (!input?.includes(".")) {
-          storeNumToScreen(symbol);
-        }
         break;
 
       case "+":
@@ -104,12 +102,11 @@ export default function Calculator() {
         setTotal(newTotal);
         prepareNextOperation(symbol);
         break;
-
       default:
         break;
     }
   }
-
+  
   function prepareNextOperation(symbol: string) {
     setPrevSymbol(symbol);
     setShowOldInput(true);
@@ -118,11 +115,16 @@ export default function Calculator() {
   }
 
   function storeNumToScreen(num: string) {
-    setInput(prev => prev === '0' || prev === null || equalSignPressed && input?.charAt(0) !== '.'? num : prev + num)
-    
+    setInput((prev) =>
+      prev === "0" ||
+      prev === null ||
+      (equalSignPressed && input?.charAt(0) !== ".")
+        ? num
+        : prev + num
+    );
   }
 
-  function handleButtonPress(value: string) {
+  function handleButtonPress(value: string): void {
     if (showOldInput) {
       setShowOldInput(false);
     }
@@ -131,12 +133,16 @@ export default function Calculator() {
       handleSymbol(value);
     } else {
       storeNumToScreen(value);
-      if(equalSignPressed){
-        setTotal(0)
-      } 
+      if (equalSignPressed) {
+        setTotal(0);
+      }
     }
-    if(value !== '='){
-      setEqualSignPressed((value === '+/-' && equalSignPressed || value === '%' || value === '.' && equalSignPressed))
+    if (value !== "=") {
+      setEqualSignPressed(
+        (value === "+/-" && equalSignPressed) ||
+          value === "%" ||
+          (value === "." && equalSignPressed)
+      );
     }
   }
 
